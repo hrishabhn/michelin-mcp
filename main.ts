@@ -1,7 +1,8 @@
-import { FastMCP } from 'npm:fastmcp'
-import { z } from 'npm:zod'
 import { restaurantClient } from './client.ts'
 import { AwardSchema, PriceSchema } from './schema.ts'
+
+import { FastMCP } from 'npm:fastmcp'
+import { z } from 'npm:zod'
 
 const server = new FastMCP({
     name: 'Michelin MCP',

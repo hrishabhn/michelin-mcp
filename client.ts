@@ -1,7 +1,9 @@
-import { parse } from 'jsr:@std/csv'
 import { type Restaurant, RestaurantSchema } from './schema.ts'
-import { z } from 'npm:zod'
+import { sortByFrequency } from './util.ts'
+
+import { parse } from 'jsr:@std/csv'
 import path from 'node:path'
+import { z } from 'npm:zod'
 
 // dirname
 const dirname = import.meta.dirname
