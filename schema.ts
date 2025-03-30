@@ -1,14 +1,15 @@
 import { z } from 'npm:zod'
 
-export const PriceSchema = z.number().int().min(0).max(4)
+export const PriceSchema = z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4)])
 
-export const AwardSchema = z.enum([
+export const allAward = [
     'Selected Restaurants',
     'Bib Gourmand',
     '1 Star',
     '2 Stars',
     '3 Stars',
-])
+] as const
+export const AwardSchema = z.enum(allAward)
 
 export const RestaurantSchema = z.object({
     Name: z.string(),

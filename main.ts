@@ -1,8 +1,8 @@
-import { restaurantClient } from './client.ts'
-import { AwardSchema, PriceSchema } from './schema.ts'
+import { GetAllRestaurantFilterSchema, restaurantClient } from './client.ts'
 
 import { FastMCP } from 'npm:fastmcp'
 import { z } from 'npm:zod'
+import { allAward } from './schema.ts'
 
 const server = new FastMCP({
     name: 'Michelin MCP',
@@ -12,99 +12,112 @@ const server = new FastMCP({
 server.addTool({
     name: 'getAllCity',
     description: 'Get a list of all cities',
-    parameters: z.object({}),
+    parameters: z.object({ offset: z.number().optional() }),
     // deno-lint-ignore require-await
-    execute: async () => ({
-        content: restaurantClient.getAllCity().map((city) => ({
-            type: 'text',
-            text: city,
-        })),
-    }),
+    execute: async ({ offset }) => {
+        const { total, data } = restaurantClient.getAllCity(offset)
+        return {
+            content: [
+                { type: 'text', text: `Total: ${total}` },
+                ...data.map((city) => ({
+                    type: 'text' as const,
+                    text: city,
+                })),
+            ],
+        }
+    },
 })
 
 server.addTool({
     name: 'getAllCountry',
     description: 'Get a list of all countries',
-    parameters: z.object({}),
+    parameters: z.object({ offset: z.number().optional() }),
     // deno-lint-ignore require-await
-    execute: async () => ({
-        content: restaurantClient.getAllCountry().map((country) => ({
-            type: 'text',
-            text: country,
-        })),
-    }),
+    execute: async ({ offset }) => {
+        const { total, data } = restaurantClient.getAllCountry(offset)
+        return {
+            content: [
+                { type: 'text', text: `Total: ${total}` },
+                ...data.map((country) => ({
+                    type: 'text' as const,
+                    text: country,
+                })),
+            ],
+        }
+    },
 })
 
 server.addTool({
     name: 'getAllCuisine',
     description: 'Get a list of all cuisines',
+    parameters: z.object({ offset: z.number().optional() }),
+    // deno-lint-ignore require-await
+    execute: async ({ offset }) => {
+        const { total, data } = restaurantClient.getAllCuisine(offset)
+        return {
+            content: [
+                { type: 'text', text: `Total: ${total}` },
+                ...data.map((cuisine) => ({
+                    type: 'text' as const,
+                    text: cuisine,
+                })),
+            ],
+        }
+    },
+})
+
+server.addTool({
+    name: 'getAllAward',
+    description: 'Get a list of all awards',
     parameters: z.object({}),
     // deno-lint-ignore require-await
-    execute: async () => ({
-        content: restaurantClient.getAllCuisine().map((cuisine) => ({
-            type: 'text',
-            text: cuisine,
-        })),
-    }),
+    execute: async () => {
+        return {
+            content: allAward.map((award) => ({
+                type: 'text' as const,
+                text: award,
+            })),
+        }
+    },
+})
+
+server.addTool({
+    name: 'getAllFacilitiesAndServices',
+    description: 'Get a list of all facilities and services',
+    parameters: z.object({ offset: z.number().optional() }),
+    // deno-lint-ignore require-await
+    execute: async ({ offset }) => {
+        const { total, data } = restaurantClient.getAllFacilitiesAndServices(offset)
+        return {
+            content: [
+                { type: 'text', text: `Total: ${total}` },
+                ...data.map((facilitiesAndServices) => ({
+                    type: 'text' as const,
+                    text: facilitiesAndServices,
+                })),
+            ],
+        }
+    },
 })
 
 server.addTool({
     name: 'getAllRestaurant',
-    description: 'Get a list of all restaurants with given filters',
+    description: 'Get a list of all restaurants with given filters. Validate the filters using the other tools before running this tool.',
     parameters: z.object({
-        city: z.array(z.string()),
-        country: z.array(z.string()),
-        price: z.array(PriceSchema),
-        cuisine: z.array(z.string()),
-        award: z.array(AwardSchema),
-        greenStar: z.boolean().optional(),
-        facilitiesAndServices: z.array(z.string()),
+        offset: z.number().optional(),
+        filter: GetAllRestaurantFilterSchema,
     }),
     // deno-lint-ignore require-await
-    execute: async (args) => {
+    execute: async ({ offset, filter }) => {
+        const { total, data } = restaurantClient.getAllRestaurant(offset, filter)
         return {
-            content: restaurantClient.restaurants
-                // city
-                .filter((item) => {
-                    if (args.city.length === 0) return true
-                    return args.city.includes(item.City)
-                })
-                // country
-                .filter((item) => {
-                    if (args.country.length === 0) return true
-                    if (item.Country === null) return false
-                    return args.country.includes(item.Country)
-                })
-                // price
-                .filter((item) => {
-                    if (args.price.length === 0) return true
-                    return args.price.includes(item.Price)
-                })
-                // cuisine
-                .filter((item) => {
-                    if (args.cuisine.length === 0) return true
-                    return args.cuisine.some((c) => item.Cuisine.includes(c))
-                })
-                // award
-                .filter((item) => {
-                    if (args.award.length === 0) return true
-                    return args.award.includes(item.Award)
-                })
-                // greenStar
-                .filter((item) => {
-                    if (args.greenStar === undefined) return true
-                    return args.greenStar === item.GreenStar
-                })
-                // facilitiesAndServices
-                .filter((item) => {
-                    if (args.facilitiesAndServices.length === 0) return true
-                    return args.facilitiesAndServices.some((f) => item.FacilitiesAndServices.includes(f))
-                })
-                // return
-                .map((item) => ({
-                    type: 'text',
-                    text: JSON.stringify(item, null, 2),
+            content: [
+                { type: 'text', text: `Total: ${total}` },
+                ...data.map((restaurant) => ({
+                    type: 'text' as const,
+                    text: JSON.stringify(restaurant, null, 2),
                 })),
+            ],
         }
     },
 })
