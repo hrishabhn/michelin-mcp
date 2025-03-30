@@ -17,8 +17,8 @@ export const RestaurantSchema = z.object({
     Price: z.string().transform((value) => value.length).pipe(PriceSchema),
     Cuisine: z.string().transform((value) => value.split(', ')),
 
-    Latitude: z.string(),
-    Longitude: z.string(),
+    Latitude: z.coerce.number(),
+    Longitude: z.coerce.number(),
 
     PhoneNumber: z.string().transform((value) => value || null),
     Url: z.string().url(),

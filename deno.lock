@@ -2,6 +2,7 @@
   "version": "4",
   "specifiers": {
     "jsr:@std/csv@*": "1.0.5",
+    "jsr:@std/fs@*": "1.0.5",
     "jsr:@std/streams@^1.0.8": "1.0.9",
     "npm:fastmcp@*": "1.20.5_zod@3.24.2",
     "npm:zod@*": "3.24.2"
@@ -12,6 +13,9 @@
       "dependencies": [
         "jsr:@std/streams"
       ]
+    },
+    "@std/fs@1.0.5": {
+      "integrity": "41806ad6823d0b5f275f9849a2640d87e4ef67c51ee1b8fb02426f55e02fd44e"
     },
     "@std/streams@1.0.9": {
       "integrity": "a9d26b1988cdd7aa7b1f4b51e1c36c1557f3f252880fa6cc5b9f37078b1a5035"
