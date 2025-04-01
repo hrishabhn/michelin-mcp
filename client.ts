@@ -2,12 +2,12 @@ import { dbPath } from './lib.ts'
 import { AwardSchema, PriceSchema } from './schema.ts'
 
 import { existsSync } from 'jsr:@std/fs/exists'
-import { DatabaseSync } from 'node:sqlite'
+import { Database } from 'jsr:@db/sqlite'
 import z from 'npm:zod'
 
 // check for db
 if (!existsSync(dbPath)) throw new Error('Database not found')
-const db = new DatabaseSync(dbPath, { readOnly: true })
+const db = new Database(dbPath, { readonly: true })
 
 // pagination
 type PaginatedResult<T> = {
