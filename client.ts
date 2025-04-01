@@ -16,7 +16,7 @@ type PaginatedResult<T> = {
     nextOffset: number
 }
 
-const limit = 10
+const limit = 15
 
 // params
 export const GetAllRestaurantFilterSchema = z.object({
