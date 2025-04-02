@@ -10,8 +10,6 @@ type PaginatedResult<T> = {
     data: T[]
 }
 
-const limit = 15
-
 // params
 export const GetAllRestaurantFilterSchema = z.object({
     city: z.string().optional(),
@@ -27,31 +25,45 @@ export const GetAllRestaurantFilterSchema = z.object({
 type GetAllRestaurantFilter = z.infer<typeof GetAllRestaurantFilterSchema>
 
 class RestaurantClient {
-    getAllCity = async (offset: number = 0): Promise<PaginatedResult<string>> => ({
-        nextOffset: offset + limit,
-        total: ((await sql`select count(distinct city) as count from restaurant`)[0].count as number),
-        data: ((await sql`select city from restaurant group by city order by count(*) desc limit ${limit} offset ${offset}`) as { city: string }[]).map((item) => item.city),
-    })
+    getAllCity = async (offset: number = 0): Promise<PaginatedResult<string>> => {
+        const limit = 100
+        return ({
+            nextOffset: offset + limit,
+            total: ((await sql`select count(distinct city) as count from restaurant`)[0].count as number),
+            data: ((await sql`select city from restaurant group by city order by count(*) desc limit ${limit} offset ${offset}`) as { city: string }[]).map((item) => item.city),
+        })
+    }
 
-    getAllCountry = async (offset: number = 0): Promise<PaginatedResult<string>> => ({
-        nextOffset: offset + limit,
-        total: ((await sql`select count(distinct country) as count from restaurant`)[0].count as number),
-        data: ((await sql`select country from restaurant group by country order by count(*) desc limit ${limit} offset ${offset}`) as { country: string }[]).map((item) => item.country),
-    })
+    getAllCountry = async (offset: number = 0): Promise<PaginatedResult<string>> => {
+        const limit = 100
+        return ({
+            nextOffset: offset + limit,
+            total: ((await sql`select count(distinct country) as count from restaurant`)[0].count as number),
+            data: ((await sql`select country from restaurant group by country order by count(*) desc limit ${limit} offset ${offset}`) as { country: string }[]).map((item) => item.country),
+        })
+    }
 
-    getAllCuisine = async (offset: number = 0): Promise<PaginatedResult<string>> => ({
-        nextOffset: offset + limit,
-        total: ((await sql`select count(distinct cuisine) as count from (select unnest(cuisine) as cuisine from restaurant)`)[0].count as number),
-        data: ((await sql`select distinct cuisine, count(*) as count from (select unnest(cuisine) as cuisine from restaurant) group by cuisine order by count desc limit ${limit} offset ${offset}`) as { cuisine: string }[]).map((item) => item.cuisine),
-    })
+    getAllCuisine = async (offset: number = 0): Promise<PaginatedResult<string>> => {
+        const limit = 100
+        return ({
+            nextOffset: offset + limit,
+            total: ((await sql`select count(distinct cuisine) as count from (select unnest(cuisine) as cuisine from restaurant)`)[0].count as number),
+            data: ((await sql`select distinct cuisine, count(*) as count from (select unnest(cuisine) as cuisine from restaurant) group by cuisine order by count desc limit ${limit} offset ${offset}`) as { cuisine: string }[]).map((item) => item.cuisine),
+        })
+    }
 
-    getAllFacilitiesAndServices = async (offset: number = 0): Promise<PaginatedResult<string>> => ({
-        nextOffset: offset + limit,
-        total: ((await sql`select count(distinct facilities_and_services) as count from (select unnest(facilities_and_services) as facilities_and_services from restaurant)`)[0].count as number),
-        data: ((await sql`select distinct facilities_and_services, count(*) as count from (select unnest(facilities_and_services) as facilities_and_services from restaurant) group by facilities_and_services order by count desc limit ${limit} offset ${offset}`) as { facilities_and_services: string }[]).map((item) => item.facilities_and_services),
-    })
+    getAllFacilitiesAndServices = async (offset: number = 0): Promise<PaginatedResult<string>> => {
+        const limit = 100
+        return ({
+            nextOffset: offset + limit,
+            total: ((await sql`select count(distinct facilities_and_services) as count from (select unnest(facilities_and_services) as facilities_and_services from restaurant)`)[0].count as number),
+            data: ((await sql`select distinct facilities_and_services, count(*) as count from (select unnest(facilities_and_services) as facilities_and_services from restaurant) group by facilities_and_services order by count desc limit ${limit} offset ${offset}`) as { facilities_and_services: string }[]).map((item) => item.facilities_and_services),
+        })
+    }
 
     getAllRestaurant = async (offset: number = 0, filter: GetAllRestaurantFilter): Promise<PaginatedResult<unknown>> => {
+        const limit = 20
+
         const where = sql`
             where true
             and ${filter.city !== undefined ? sql`city = ${filter.city}` : 'true'}
