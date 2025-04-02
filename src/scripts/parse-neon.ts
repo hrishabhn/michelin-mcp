@@ -1,5 +1,5 @@
-import { csvPath } from './paths.ts'
 import { sql } from '../neon.ts'
+import { csvPath } from './paths.ts'
 import { RestaurantSchema } from '../schema.ts'
 
 import { parse } from 'jsr:@std/csv'
