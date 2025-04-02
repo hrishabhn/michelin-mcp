@@ -1,4 +1,4 @@
-import { csvPath, dbPath } from '../lib.ts'
+import { csvPath, sqlitePath } from './paths.ts'
 import { RestaurantSchema } from '../schema.ts'
 
 import { parse } from 'jsr:@std/csv'
@@ -10,9 +10,9 @@ import { z } from 'npm:zod'
 const allRestaurant = z.array(RestaurantSchema).parse(parse(Deno.readTextFileSync(csvPath), { skipFirstRow: true }))
 
 // delete database
-if (existsSync(dbPath)) Deno.removeSync(dbPath)
+if (existsSync(sqlitePath)) Deno.removeSync(sqlitePath)
 // create database
-const db = new DatabaseSync(dbPath)
+const db = new DatabaseSync(sqlitePath)
 
 // create table
 db.exec(`

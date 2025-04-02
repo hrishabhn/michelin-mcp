@@ -1,5 +1,5 @@
 import { AwardSchema, PriceSchema } from './schema.ts'
-import { sql } from './src/neon.ts'
+import { sql } from './neon.ts'
 
 import z from 'npm:zod'
 

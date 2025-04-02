@@ -1,6 +1,6 @@
-import { csvPath } from '../lib.ts'
+import { csvPath } from './paths.ts'
+import { sql } from '../neon.ts'
 import { RestaurantSchema } from '../schema.ts'
-import { sql } from '../src/neon.ts'
 
 import { parse } from 'jsr:@std/csv'
 import { z } from 'npm:zod'
