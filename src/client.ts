@@ -70,10 +70,10 @@ class RestaurantClient {
             and ${filter.country !== undefined ? sql`country = ${filter.country}` : 'true'}
             and ${filter.minPrice !== undefined ? sql`price >= ${filter.minPrice}` : 'true'}
             and ${filter.maxPrice !== undefined ? sql`price <= ${filter.maxPrice}` : 'true'}
-            and ${filter.cuisine !== undefined ? sql`any(cuisine) = ${filter.cuisine}` : 'true'}
+            and ${filter.cuisine !== undefined ? sql`${filter.cuisine} = any(cuisine)` : 'true'}
             and ${filter.award !== undefined ? sql`award = ${filter.award}` : 'true'}
             and ${filter.greenStar !== undefined ? sql`green_star = ${filter.greenStar ? 1 : 0}` : 'true'}
-            and ${filter.facilitiesAndServices !== undefined ? sql`any(facilities_and_services) = ${filter.facilitiesAndServices}` : 'true'}
+            and ${filter.facilitiesAndServices !== undefined ? sql`${filter.facilitiesAndServices} = any(facilities_and_services)` : 'true'}
         `
 
         return {
