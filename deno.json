@@ -2,8 +2,8 @@
     "tasks": {
         "parse-sqlite": "deno run --allow-read --allow-write ./src/scripts/parse-sqlite.ts",
         "parse-neon": "deno run --allow-env --env-file --allow-read --allow-net ./src/scripts/parse-neon.ts",
-        "dev": "deno run --allow-env --env-file --allow-read --allow-net --watch ./src/main.ts",
-        "start": "deno run --allow-env --env-file --allow-read --allow-net ./src/main.ts"
+        "dev": "deno run --allow-env --env-file --allow-read --allow-net --watch main.ts",
+        "start": "deno run --allow-env --env-file --allow-read --allow-net main.ts"
     },
     "fmt": {
         "useTabs": false,

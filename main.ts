@@ -1,8 +1,8 @@
-import { GetAllRestaurantFilterSchema, restaurantClient } from './client.ts'
+import { GetAllRestaurantFilterSchema, restaurantClient } from './src/client.ts'
+import { allAward } from './src/schema.ts'
 
 import { FastMCP } from 'npm:fastmcp'
 import { z } from 'npm:zod'
-import { allAward } from './schema.ts'
 
 const server = new FastMCP({
     name: 'Michelin MCP',
