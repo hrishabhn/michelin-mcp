@@ -1,13 +1,13 @@
 {
   "version": "4",
   "specifiers": {
-    "jsr:@std/fs@*": "1.0.5",
+    "jsr:@neon/serverless@*": "1.0.0",
     "npm:fastmcp@*": "1.20.5_zod@3.24.2",
     "npm:zod@*": "3.24.2"
   },
   "jsr": {
-    "@std/fs@1.0.5": {
-      "integrity": "41806ad6823d0b5f275f9849a2640d87e4ef67c51ee1b8fb02426f55e02fd44e"
+    "@neon/serverless@1.0.0": {
+      "integrity": "4455654a758b6ea251a8fe198e8880fafa1ad0e4fcf845f0aabd32e4355c6cb0"
     }
   },
   "npm": {

@@ -1,5 +1,5 @@
-import { csvPath, dbPath } from './lib.ts'
-import { RestaurantSchema } from './schema.ts'
+import { csvPath, dbPath } from '../lib.ts'
+import { RestaurantSchema } from '../schema.ts'
 
 import { parse } from 'jsr:@std/csv'
 import { existsSync } from 'jsr:@std/fs/exists'

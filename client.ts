@@ -1,19 +1,13 @@
-import { dbPath } from './lib.ts'
 import { AwardSchema, PriceSchema } from './schema.ts'
+import { sql } from './src/neon.ts'
 
-import { existsSync } from 'jsr:@std/fs/exists'
-import { DatabaseSync } from 'node:sqlite'
 import z from 'npm:zod'
-
-// check for db
-if (!existsSync(dbPath)) throw new Error('Database not found')
-const db = new DatabaseSync(dbPath, { readOnly: true })
 
 // pagination
 type PaginatedResult<T> = {
-    data: T[]
-    total: number
     nextOffset: number
+    total: number
+    data: T[]
 }
 
 const limit = 15
@@ -33,48 +27,47 @@ export const GetAllRestaurantFilterSchema = z.object({
 type GetAllRestaurantFilter = z.infer<typeof GetAllRestaurantFilterSchema>
 
 class RestaurantClient {
-    getAllCity = (offset: number = 0): PaginatedResult<string> => ({
+    getAllCity = async (offset: number = 0): Promise<PaginatedResult<string>> => ({
         nextOffset: offset + limit,
-        total: (db.prepare('select count(*) as count from (select city from restaurant group by city)').get() as { count: number }).count,
-        data: (db.prepare('select city from restaurant group by city order by count(*) desc limit ? offset ?').all(limit, offset) as { city: string }[]).map((item) => item.city),
+        total: ((await sql`select count(distinct city) as count from restaurant`)[0].count as number),
+        data: ((await sql`select city from restaurant group by city order by count(*) desc limit ${limit} offset ${offset}`) as { city: string }[]).map((item) => item.city),
     })
 
-    getAllCountry = (offset: number = 0): PaginatedResult<string> => ({
+    getAllCountry = async (offset: number = 0): Promise<PaginatedResult<string>> => ({
         nextOffset: offset + limit,
-        total: (db.prepare('select count(*) as count from (select country from restaurant group by country)').get() as { count: number }).count,
-        data: (db.prepare('select country from restaurant group by country order by count(*) desc limit ? offset ?').all(limit, offset) as { country: string }[]).map((item) => item.country),
+        total: ((await sql`select count(distinct country) as count from restaurant`)[0].count as number),
+        data: ((await sql`select country from restaurant group by country order by count(*) desc limit ${limit} offset ${offset}`) as { country: string }[]).map((item) => item.country),
     })
 
-    getAllCuisine = (offset: number = 0): PaginatedResult<string> => ({
+    getAllCuisine = async (offset: number = 0): Promise<PaginatedResult<string>> => ({
         nextOffset: offset + limit,
-        total: (db.prepare(`select count(*) as count from (with cuisine as (select json_each.value as cuisine from restaurant, json_each(cuisine)) select cuisine from cuisine group by cuisine)`).get() as { count: number }).count,
-        data: (db.prepare(`with cuisine as (select json_each.value as cuisine from restaurant, json_each(cuisine)) select cuisine from cuisine group by cuisine order by count(*) desc limit ? offset ?`).all(limit, offset) as { cuisine: string }[]).map((item) => item.cuisine),
+        total: ((await sql`select count(distinct cuisine) as count from (select unnest(cuisine) as cuisine from restaurant)`)[0].count as number),
+        data: ((await sql`select distinct cuisine, count(*) as count from (select unnest(cuisine) as cuisine from restaurant) group by cuisine order by count desc limit ${limit} offset ${offset}`) as { cuisine: string }[]).map((item) => item.cuisine),
     })
 
-    getAllFacilitiesAndServices = (offset: number = 0): PaginatedResult<string> => ({
+    getAllFacilitiesAndServices = async (offset: number = 0): Promise<PaginatedResult<string>> => ({
         nextOffset: offset + limit,
-        total: (db.prepare('select count(*) as count from (with facilities_and_services as (select json_each.value as facilities_and_services from restaurant, json_each(facilities_and_services)) select facilities_and_services from facilities_and_services group by facilities_and_services)').get() as { count: number }).count,
-        data: (db.prepare('with facilities_and_services as (select json_each.value as facilities_and_services from restaurant, json_each(facilities_and_services)) select facilities_and_services from facilities_and_services group by facilities_and_services order by count(*) desc limit ? offset ?').all(limit, offset) as { facilities_and_services: string }[]).map((item) => item.facilities_and_services),
+        total: ((await sql`select count(distinct facilities_and_services) as count from (select unnest(facilities_and_services) as facilities_and_services from restaurant)`)[0].count as number),
+        data: ((await sql`select distinct facilities_and_services, count(*) as count from (select unnest(facilities_and_services) as facilities_and_services from restaurant) group by facilities_and_services order by count desc limit ${limit} offset ${offset}`) as { facilities_and_services: string }[]).map((item) => item.facilities_and_services),
     })
 
-    getAllRestaurant = (offset: number = 0, filter: GetAllRestaurantFilter): PaginatedResult<unknown> => {
-        const whereItems: string[] = []
-
-        if (filter.city !== undefined) whereItems.push(`city = '${filter.city}'`)
-        if (filter.country !== undefined) whereItems.push(`country = '${filter.country}'`)
-        if (filter.minPrice !== undefined) whereItems.push(`price >= '${filter.minPrice}'`)
-        if (filter.maxPrice !== undefined) whereItems.push(`price <= '${filter.maxPrice}'`)
-        if (filter.cuisine !== undefined) whereItems.push(`json_extract(cuisine, '$') like '%${filter.cuisine}%'`)
-        if (filter.award !== undefined) whereItems.push(`award = '${filter.award}'`)
-        if (filter.greenStar !== undefined) whereItems.push(`green_star = ${filter.greenStar ? 1 : 0}`)
-        if (filter.facilitiesAndServices !== undefined) whereItems.push(`json_extract(facilities_and_services, '$') like '%${filter.facilitiesAndServices}%'`)
-
-        const where = whereItems.length > 0 ? `where ${whereItems.join(' and ')}` : ''
+    getAllRestaurant = async (offset: number = 0, filter: GetAllRestaurantFilter): Promise<PaginatedResult<unknown>> => {
+        const where = sql`
+            where true
+            and ${filter.city !== undefined ? sql`city = ${filter.city}` : 'true'}
+            and ${filter.country !== undefined ? sql`country = ${filter.country}` : 'true'}
+            and ${filter.minPrice !== undefined ? sql`price >= ${filter.minPrice}` : 'true'}
+            and ${filter.maxPrice !== undefined ? sql`price <= ${filter.maxPrice}` : 'true'}
+            and ${filter.cuisine !== undefined ? sql`any(cuisine) = ${filter.cuisine}` : 'true'}
+            and ${filter.award !== undefined ? sql`award = ${filter.award}` : 'true'}
+            and ${filter.greenStar !== undefined ? sql`green_star = ${filter.greenStar ? 1 : 0}` : 'true'}
+            and ${filter.facilitiesAndServices !== undefined ? sql`any(facilities_and_services) = ${filter.facilitiesAndServices}` : 'true'}
+        `
 
         return {
             nextOffset: offset + limit,
-            total: (db.prepare(`select count(*) as count from restaurant ${where}`).get() as { count: number }).count,
-            data: (db.prepare(`select * from restaurant ${where} order by name limit ? offset ?`).all(limit, offset)),
+            total: ((await sql`select count(*) as count from restaurant ${where}`)[0].count as number),
+            data: (await sql`select * from restaurant ${where} order by name limit ${limit} offset ${offset}`) as unknown[],
         }
     }
 }
