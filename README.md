@@ -10,3 +10,18 @@ This is an implementation of the Model Context Protocol (MCP) for the Michelin d
 -   `getAllAward` - Get a list of all awards ordered by ranking ascending.
 -   `getAllFacilitiesAndServices` - Get a list of all facilities and services ordered by the number of restaurants in descending order. Call again with the next offset to get more facilities and services.
 -   `getAllRestaurant` - Get a list of all restaurants with given filters. Do not provide empty strings or null values as filters. Omit the filter to get all restaurants.
+
+## Running in Claude
+
+To run this code in Claude, follow the instructions found [here](https://modelcontextprotocol.io/quickstart/user) and add the following to the config:
+
+```json
+{
+    "mcpServers": {
+        "Michelin": {
+            "command": "npx",
+            "args": ["supergateway", "--sse", "https://michelin-mcp.deno.dev"]
+        }
+    }
+}
+```
