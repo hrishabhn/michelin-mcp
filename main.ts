@@ -56,8 +56,8 @@ server.addTool({
 })
 
 server.start({
-    transportType: 'sse',
-    sse: {
+    transportType: 'httpStream',
+    httpStream: {
         endpoint: '/',
         port: 8080,
     },
