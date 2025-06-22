@@ -1,0 +1,14 @@
+{
+    "servers": {
+        "Michelin": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "mcp-remote",
+                "https://michelin-mcp.deno.dev",
+                "--transport",
+                "http-only",
+            ]
+        }
+    }
+}
